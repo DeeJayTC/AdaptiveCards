@@ -17,6 +17,13 @@ namespace JsonTransformLanguage
             return Transform(input, new JsonTransformerContext(data, additionalReservedProperties));
         }
 
+        public static JToken Transform(JToken input, object data)
+        {
+            var dataConverted = JToken.FromObject(data);
+
+            return Transform(input, new JsonTransformerContext(dataConverted, null));
+        }
+
         private static JToken Transform(JToken input,  JsonTransformerContext context)
         {
             if (context.ReservedProperties.Data is JArray dataArray)
