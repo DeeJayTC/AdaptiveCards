@@ -8,6 +8,28 @@ namespace JsonTransformLanguage
 {
     public class JsonTransformerContext
     {
+        public JsonTransformerContext(JToken rootData, Dictionary<string, string> additionalReservedProperties)
+        {
+
+            // Transform dictionary
+            Dictionary<string, JToken> additionalProps = new Dictionary<string, JToken>();
+            foreach (var prop in additionalReservedProperties) {
+                additionalProps.Add(prop.Key,JToken.FromObject(prop.Value));
+            }
+
+            ReservedProperties = new JsonTransformerReservedProperties()
+            {
+                RootData = rootData,
+                Data = rootData,
+                Index = null,
+                Props = null,
+                AdditionalReservedProperties = additionalProps ?? new Dictionary<string, JToken>()
+            };
+            ParentIsArray = false;
+            Types = new JsonTransformerTypes();
+        }
+
+
         public JsonTransformerContext(JToken rootData, Dictionary<string, JToken> additionalReservedProperties)
         {
             ReservedProperties = new JsonTransformerReservedProperties()
@@ -21,6 +43,9 @@ namespace JsonTransformLanguage
             ParentIsArray = false;
             Types = new JsonTransformerTypes();
         }
+
+
+        public bool RemoveEmptyArrays { get; set; }
 
         public JsonTransformerReservedProperties ReservedProperties { get; set; }
 

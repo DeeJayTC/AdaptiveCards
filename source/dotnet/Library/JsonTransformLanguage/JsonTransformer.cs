@@ -12,17 +12,19 @@ namespace JsonTransformLanguage
         private const string PROP_TYPES = "$types";
         private const string PROP_WHEN = "$when";
 
+
         public static JToken Transform(JToken input, JToken data, Dictionary<string, JToken> additionalReservedProperties)
         {
             return Transform(input, new JsonTransformerContext(data, additionalReservedProperties));
         }
 
-        public static JToken Transform(JToken input, object data)
+
+        public static JToken Transform(JToken input, object data, Dictionary<string, string> additionalReservedProperties, bool removeEmpty = false)
         {
             var dataConverted = JToken.FromObject(data);
-
-            return Transform(input, new JsonTransformerContext(dataConverted, null));
+            return Transform(input, new JsonTransformerContext(dataConverted, additionalReservedProperties){ RemoveEmptyArrays = removeEmpty});
         }
+
 
         private static JToken Transform(JToken input,  JsonTransformerContext context)
         {
@@ -39,8 +41,14 @@ namespace JsonTransformLanguage
             switch (input.Type)
             {
                 case JTokenType.Array:
-                    return TransformArray(input as JArray, new JsonTransformerContext(context));
+                    JArray resultingArray =  TransformArray(input as JArray, new JsonTransformerContext(context));
 
+                    if (!resultingArray.HasValues && context.RemoveEmptyArrays)
+                    {
+                        resultingArray.Remove();
+                    }
+
+                    return resultingArray;
                 case JTokenType.String:
                     return JsonStringTransformer.Transform(input.Value<string>(), new JsonTransformerContext(context));
 
